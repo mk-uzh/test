@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TrailSafe — Hiking Risk Intelligence</title>
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+
+  <!-- App CSS -->
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<div class="app-shell">
+
+  <!-- ====== HEADER ====== -->
+  <header class="app-header">
+    <a class="app-logo" href="#">
+      <div class="logo-icon">🏔️</div>
+      <span class="logo-text">Trail<span>Safe</span></span>
+    </a>
+    <div id="weather-strip-global"></div>
+  </header>
+
+  <!-- ====== SIDEBAR ====== -->
+  <aside class="sidebar">
+    <div class="sb-top">
+      <div class="sb-title">
+        Nearby Trails
+        <span class="sb-count" id="trail-count">10 trails</span>
+      </div>
+
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="search-input" placeholder="Search trails…" />
+      </div>
+
+      <div class="filter-row">
+        <button class="filter-btn active" data-filter="all">All</button>
+        <button class="filter-btn" data-filter="safe">Safe</button>
+        <button class="filter-btn" data-filter="caution">Caution</button>
+        <button class="filter-btn" data-filter="risk">Risk</button>
+        <button class="filter-btn" data-filter="danger">Danger</button>
+      </div>
+    </div>
+
+    <div id="trail-list"></div>
+  </aside>
+
+  <!-- ====== MAP ====== -->
+  <main class="map-container">
+    <div id="trail-map"></div>
+  </main>
+
+  <!-- ====== DETAIL COLUMN ====== -->
+  <div class="detail-column">
+    <div id="detail-panel">
+      <div class="empty-detail">
+        <span>🗺️</span>
+        <p>Select a trail to view details</p>
+      </div>
+    </div>
+
+    <div id="gear-panel">
+      <div class="empty-detail">
+        <span>🎒</span>
+        <p>Gear list appears here</p>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /app-shell -->
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV/XN/WLcE=" crossorigin=""></script>
+
+<!-- App JS -->
+<script src="js/app.js"></script>
+
+</body>
+</html>
