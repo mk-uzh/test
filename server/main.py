@@ -2,6 +2,7 @@
 TrailSafe API — auth, DB (default SQLite file), JWT session cookie.
 Run from project: uvicorn server.main:app --host 0.0.0.0 --port 8000
 """
+# Bundle entry: /api/* for auth; static files (index, auth, js, data) are mounted at project ROOT.
 from __future__ import annotations
 
 import os
