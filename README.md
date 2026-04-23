@@ -81,3 +81,5 @@ Edit CSVs under `data/`. Join key is `trail_id` (or `id` in `trails.csv`). After
 - **Vanilla JS** — no build step  
 - **Google Fonts** — Outfit + DM Sans  
 - **localStorage** — gear checklist state  
+
+> **Note:** An older **nested** `trailsafe/` copy may remain in the repo from a previous upload. The **canonical** app in this project is the **repository root** (this README, `index.html`, `server/`, `js/`, `data/`).
