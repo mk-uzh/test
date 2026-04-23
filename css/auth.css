@@ -1,0 +1,268 @@
+/* Auth, modal — same design tokens as style.css (Outfit, DM Sans, stone/green) */
+.auth-body {
+  min-height: 100vh;
+  background: var(--s100);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px 48px;
+}
+
+.auth-header-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 52px;
+  background: var(--s900);
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(0,0,0,.2);
+}
+
+.auth-page {
+  width: 100%;
+  max-width: 420px;
+  margin-top: 40px;
+}
+
+.auth-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  margin-bottom: 0;
+}
+
+.auth-card {
+  background: var(--white);
+  border: 1px solid var(--s200);
+  border-radius: var(--r);
+  box-shadow: var(--shadow);
+  padding: 24px 22px 28px;
+}
+
+.auth-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.auth-tab {
+  flex: 1;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 600;
+  font-size: 13px;
+  padding: 8px 12px;
+  border: 1px solid var(--s200);
+  border-radius: var(--rs);
+  background: var(--s50);
+  color: var(--s500);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.auth-tab:hover {
+  border-color: var(--green);
+  color: var(--s700);
+}
+
+.auth-tab.active {
+  background: var(--s900);
+  color: #fff;
+  border-color: var(--s900);
+}
+
+.auth-h1 {
+  font-family: 'Outfit', sans-serif;
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--s900);
+  margin-bottom: 6px;
+  letter-spacing: -0.3px;
+}
+
+.auth-lead {
+  font-size: 13px;
+  color: var(--s500);
+  margin-bottom: 18px;
+  line-height: 1.45;
+}
+
+.field {
+  margin-bottom: 12px;
+}
+
+.field label {
+  display: block;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--s700);
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.field input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--s200);
+  border-radius: var(--rs);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  background: var(--s50);
+  color: var(--s900);
+  outline: none;
+  transition: border 0.2s;
+}
+
+.field input:focus {
+  border-color: var(--green);
+}
+
+.form-err {
+  font-size: 12px;
+  color: #b91c1c;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: var(--rs);
+  padding: 8px 10px;
+  margin-bottom: 12px;
+}
+
+.auth-submit {
+  width: 100%;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  padding: 11px 16px;
+  border: none;
+  border-radius: var(--rs);
+  background: var(--s900);
+  color: #fff;
+  cursor: pointer;
+  margin-top: 4px;
+  transition: background 0.15s;
+}
+
+.auth-submit:hover {
+  background: var(--green-dark);
+}
+
+.auth-forgot {
+  text-align: center;
+  margin-top: 16px;
+}
+
+.link-btn {
+  background: none;
+  border: none;
+  color: var(--green-dark);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.auth-footer {
+  text-align: center;
+  margin-top: 12px;
+  font-size: 13px;
+}
+
+.auth-footer a {
+  color: var(--green-dark);
+  font-weight: 600;
+}
+
+/* Modal */
+.ai-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.ai-modal[hidden] {
+  display: none !important;
+}
+
+.ai-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(28, 25, 23, 0.55);
+  backdrop-filter: blur(2px);
+}
+
+.ai-dialog {
+  position: relative;
+  z-index: 1;
+  max-width: 480px;
+  width: 100%;
+  max-height: min(90vh, 640px);
+  overflow-y: auto;
+  background: var(--white);
+  border: 1px solid var(--s200);
+  border-radius: var(--r);
+  box-shadow: 0 12px 40px rgba(0,0,0,.2);
+  padding: 20px 22px 22px;
+}
+
+.ai-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 8px;
+  background: var(--s100);
+  color: var(--s500);
+  font-size: 14px;
+  cursor: pointer;
+  line-height: 1;
+  transition: background 0.15s;
+}
+
+.ai-close:hover {
+  background: var(--s200);
+  color: var(--s700);
+}
+
+.ai-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--s900);
+  margin: 0 32px 12px 0;
+  line-height: 1.2;
+}
+
+.ai-text {
+  font-size: 13px;
+  color: var(--s700);
+  line-height: 1.55;
+  margin-bottom: 18px;
+}
+
+.ai-text p {
+  margin: 0;
+}
+
+.ai-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.ai-actions .auth-submit {
+  width: auto;
+  min-width: 120px;
+  margin-top: 0;
+}

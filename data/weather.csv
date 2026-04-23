@@ -1,0 +1,11 @@
+trail_id,temp_c,sky_condition,wind_kmh,humidity_pct,visibility_km,pressure_hpa,precipitation_pct,updated_min_ago,good_hiking
+1,22,Partly Cloudy,13,45,16,1019,40,5,yes
+2,19,Clear,8,38,20,1022,15,12,yes
+3,14,Overcast,22,62,10,1008,65,3,caution
+4,21,Sunny,6,50,25,1020,10,8,yes
+5,18,Partly Cloudy,11,42,18,1015,25,20,yes
+6,12,Stormy,28,70,8,1002,80,2,no
+7,22,Clear,5,40,30,1021,5,15,yes
+8,17,Cloudy,15,55,14,1012,35,6,yes
+9,15,Foggy,20,58,12,1009,55,4,caution
+10,20,Sunny,7,44,22,1018,20,9,yes

@@ -1,0 +1,11 @@
+trail_id,canopy_pct,exposure,soil_stability,wildlife_notes,avalanche_risk
+1,35,high,medium,Chamois habitat,none
+2,55,low,high,Deer,none
+3,20,extreme,low,Marmots; loose scree,moderate
+4,70,low,high,Birds,none
+5,45,medium,high,Occasional bears (rare),none
+6,15,extreme,low,Mountain goats; unstable terrain,high
+7,25,low,high,Ducks; lake edge,none
+8,60,medium,medium,Snakes in warm months,none
+9,30,high,medium,No water sources; high UV,low
+10,80,low,high,Bees in summer,none

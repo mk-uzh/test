@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TrailSafe — Hiking Risk Intelligence</title>
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/style.css"/>
+</head>
+<body>
+
+<div class="shell">
+
+  <header>
+    <a class="logo" href="#">
+      <div class="logo-icon">🏔️</div>
+      <span class="logo-text">Trail<span>Safe</span></span>
+    </a>
+    <div class="header-right">
+      <div class="hd-weather" id="header-weather"></div>
+      <button type="button" class="header-logout-btn" id="btn-logout" title="Sign out">Log out</button>
+    </div>
+  </header>
+
+  <aside>
+    <div class="sb-top">
+      <div class="sb-title">
+        <span id="sb-area-label">Nearby trails</span>
+        <span class="sb-count" id="trail-count">0</span>
+      </div>
+      <p class="sb-hint">Search a town, trail, or <strong>mountain / peak</strong>.</p>
+      <div class="place-search-row">
+        <input type="search" id="place-search" placeholder="Place or mountain (e.g. Zermatt, Matterhorn)…" autocomplete="off" enterkeyhint="search"/>
+        <button type="button" class="btn-go" onclick="searchPlaceAndLoadTrails()">Search</button>
+      </div>
+      <div class="filters">
+        <button type="button" class="fb active" data-f="all"     onclick="setFilter(this)">All</button>
+        <button type="button" class="fb"        data-f="safe"    onclick="setFilter(this)">Safe</button>
+        <button type="button" class="fb"        data-f="caution" onclick="setFilter(this)">Caution</button>
+        <button type="button" class="fb"        data-f="risk"    onclick="setFilter(this)">Risk</button>
+        <button type="button" class="fb"        data-f="danger"  onclick="setFilter(this)">Danger</button>
+      </div>
+    </div>
+    <div class="sb-lists">
+      <div id="trail-list"></div>
+      <div class="mountain-section" id="mountain-section">
+        <div class="mountain-hd">
+          <span>Mountains (peaks)</span>
+          <span class="sb-count" id="mountain-count">0</span>
+        </div>
+        <div class="search-wrap mountain-filter-wrap">
+          <input type="search" id="search-mountain" placeholder="Filter peaks by name…" autocomplete="off" oninput="filterMountains()"/>
+        </div>
+        <div id="mountain-list"></div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="map-wrap">
+    <div id="map" role="application" aria-label="Interactive map"></div>
+    <div id="conditions-panel" class="conditions-card" hidden></div>
+  </div>
+
+  <div class="dc">
+    <div id="detail">
+      <div class="empty"><span>🗺️</span><p>Select a trail or peak for details</p></div>
+    </div>
+    <div id="gear">
+      <div class="empty"><span>🎒</span><p>Gear list appears here</p></div>
+    </div>
+  </div>
+
+</div>
+
+<script src="js/index-boot.js"></script>
+
+</body>
+</html>

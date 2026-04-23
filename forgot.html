@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Reset password — TrailSafe</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/style.css"/>
+  <link rel="stylesheet" href="css/auth.css"/>
+</head>
+<body class="auth-body">
+  <div class="auth-page">
+    <a class="auth-logo" href="/auth.html">
+      <div class="logo-icon">🏔️</div>
+      <span class="logo-text">Trail<span>Safe</span></span>
+    </a>
+    <div class="auth-card">
+      <h1 class="auth-h1">Reset password</h1>
+      <p class="auth-lead">Enter the email for your account. If it exists, a reset link or token (demo) can be provided.</p>
+      <div class="field">
+        <label for="fp-email">Email</label>
+        <input type="email" id="fp-email" autocomplete="email" placeholder="you@example.com"/>
+      </div>
+      <p class="form-err" id="fp-err" hidden></p>
+      <button type="button" class="auth-submit" id="fp-send">Send reset</button>
+      <p class="auth-footer"><a href="/auth.html">Back to sign in</a></p>
+      <div class="field" id="fp-token-wrap" style="margin-top:1rem" hidden>
+        <label for="fp-token">Reset token (from email or demo response)</label>
+        <input type="text" id="fp-token" placeholder="paste token" autocomplete="off"/>
+      </div>
+      <div class="field" id="fp-new-wrap" hidden>
+        <label for="fp-new">New password</label>
+        <input type="password" id="fp-new" autocomplete="new-password" placeholder="8+ chars, 1 upper, 1 number, 1 special"/>
+      </div>
+      <button type="button" class="auth-submit" id="fp-do" hidden>Update password</button>
+    </div>
+  </div>
+  <script>
+  (function () {
+    var msg = function (m) { var e = document.getElementById('fp-err'); e.textContent = m || ''; e.hidden = !m; };
+    document.getElementById('fp-send').addEventListener('click', function () {
+      var email = (document.getElementById('fp-email').value || '').trim();
+      msg('');
+      if (!email) { msg('Enter your email.'); return; }
+      fetch('/api/auth/forgot-password', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include',
+        body: JSON.stringify({ email: email })
+      }).then(function (r) { return r.json().then(function (j) { return { r: r, j: j }; }); })
+        .then(function (x) {
+          msg(x.j.message || (x.r.ok ? 'If an account exists, check reset instructions.' : 'Request failed.'));
+          if (x.j && x.j.debug_reset_token) {
+            document.getElementById('fp-token').value = x.j.debug_reset_token;
+            document.getElementById('fp-token-wrap').hidden = false;
+            document.getElementById('fp-new-wrap').hidden = false;
+            document.getElementById('fp-do').hidden = false;
+            msg('Demo mode: token filled — set a new password below.');
+          } else {
+            document.getElementById('fp-token-wrap').hidden = false;
+            document.getElementById('fp-new-wrap').hidden = false;
+            document.getElementById('fp-do').hidden = false;
+          }
+        })
+        .catch(function () { msg('Request failed.'); });
+    });
+    function pwdErr(p) {
+      if (!p || p.length < 8) return 'Password must be at least 8 characters.';
+      if (!/[A-Z]/.test(p)) return 'Password must include one uppercase letter.';
+      if (!/\d/.test(p)) return 'Password must include one number.';
+      if (!/[^A-Za-z0-9]/.test(p)) return 'Password must include one special character.';
+      return null;
+    }
+    document.getElementById('fp-do').addEventListener('click', function () {
+      var token = (document.getElementById('fp-token').value || '').trim();
+      var newp = (document.getElementById('fp-new').value || '');
+      var pe = pwdErr(newp);
+      if (pe) { msg(pe); return; }
+      if (!token) { msg('Paste the reset token.'); return; }
+      fetch('/api/auth/reset-password', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include',
+        body: JSON.stringify({ token: token, new_password: newp })
+      }).then(function (r) {
+        if (r.ok) { location.replace('/auth.html?reset=1'); return; }
+        return r.json().then(function (j) { throw j; });
+      }).catch(function (e) {
+        msg((e && e.detail) || (e && e.message) || 'Reset failed');
+      });
+    });
+  })();
+  </script>
+</body>
+</html>

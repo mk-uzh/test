@@ -1,0 +1,22 @@
+# MariaDB for TrailSafe (run: docker compose up -d)
+services:
+  db:
+    image: mariadb:11
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: trailsafe
+      MYSQL_USER: trailsafe
+      MYSQL_PASSWORD: trailsafe
+    ports:
+      - "3306:3306"
+    volumes:
+      - trailsafe_mariadb:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mariadb-admin", "ping", "-h", "127.0.0.1", "-u", "root", "-proot"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+
+volumes:
+  trailsafe_mariadb:

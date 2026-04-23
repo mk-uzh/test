@@ -1,0 +1,11 @@
+id,name,lat,lng,distance_km,rating,status,trail_type,surface,water_sources
+1,Eagle Peak Trail,47.3769,8.5417,8.4,4.8,Caution,Loop,Rocky,0
+2,Sunset Ridge Loop,47.4123,8.6021,5.2,4.6,Safe,Loop,Dirt,2
+3,Glacier View Path,47.2891,8.4756,12.1,4.9,Risk,Out-and-Back,Rocky,1
+4,Forest Creek Trail,47.3456,8.5892,3.8,4.3,Safe,Loop,Packed Dirt,3
+5,Alpine Meadow Circuit,47.4567,8.4234,9.7,4.7,Safe,Loop,Mixed,2
+6,Black Bear Pass,47.2234,8.6789,14.3,4.5,Danger,Out-and-Back,Scree,0
+7,Lakeshore Promenade,47.5012,8.5123,4.1,4.4,Safe,Loop,Gravel,4
+8,Thunder Falls Route,47.3234,8.4567,7.6,4.6,Caution,Out-and-Back,Mixed,1
+9,Summit Skyline Trek,47.4789,8.6234,11.2,4.8,Risk,Out-and-Back,Rocky,0
+10,Wildflower Valley,47.3901,8.5678,6.3,4.5,Safe,Loop,Meadow,2

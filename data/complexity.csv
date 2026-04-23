@@ -1,0 +1,11 @@
+trail_id,difficulty,elevation_gain_m,technical_score_1_10,narrow_passages,rockiness,notes
+1,Hard,747,8,yes,high,Rocky terrain with narrow passages
+2,Moderate,320,4,no,low,Well-maintained dirt paths
+3,Expert,1200,10,yes,extreme,Glacier proximity; crevasses possible
+4,Easy,180,2,no,low,Flat forest loop
+5,Moderate,560,5,no,medium,Some steep sections
+6,Expert,1450,10,yes,extreme,Scree; exposed ridges
+7,Easy,90,2,no,low,Wide gravel promenade
+8,Moderate,480,5,yes,medium,Wet rocks near falls
+9,Hard,980,8,yes,high,Rocky terrain with narrow passages
+10,Easy,250,3,no,low,Meadow paths

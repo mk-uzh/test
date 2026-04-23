@@ -1,0 +1,11 @@
+trail_id,blended_risk_0_10,confidence_0_1,model_note
+1,6.8,0.82,Demo: Logistic Regression + Random Forest blend (placeholder)
+2,3.1,0.88,Demo: replace with trained models
+3,8.4,0.79,Demo: replace with trained models
+4,2.4,0.91,Demo: replace with trained models
+5,3.8,0.86,Demo: replace with trained models
+6,9.2,0.77,Demo: replace with trained models
+7,2.1,0.93,Demo: replace with trained models
+8,5.2,0.84,Demo: replace with trained models
+9,7.6,0.81,Demo: replace with trained models
+10,2.9,0.90,Demo: replace with trained models

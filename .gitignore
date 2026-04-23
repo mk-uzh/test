@@ -1,0 +1,6 @@
+server/.env
+trailsafe.db
+.venv/
+__pycache__/
+*.pyc
+.env
