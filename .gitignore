@@ -1,5 +1,6 @@
 server/.env
 trailsafe.db
+compliance_acks.log
 .venv/
 __pycache__/
 *.pyc

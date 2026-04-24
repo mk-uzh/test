@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>TrailSafe — Hiking Risk Intelligence</title>
+  <title>TrailSafe — map &amp; conditions overview</title>
 
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
@@ -20,6 +20,7 @@
     </a>
     <div class="header-right">
       <div class="hd-weather" id="header-weather"></div>
+      <button type="button" class="header-logout-btn" id="btn-settings" title="Settings">Settings</button>
       <button type="button" class="header-logout-btn" id="btn-logout" title="Sign out">Log out</button>
     </div>
   </header>
@@ -37,13 +38,17 @@
       </div>
       <div class="filters">
         <button type="button" class="fb active" data-f="all"     onclick="setFilter(this)">All</button>
-        <button type="button" class="fb"        data-f="safe"    onclick="setFilter(this)">Safe</button>
-        <button type="button" class="fb"        data-f="caution" onclick="setFilter(this)">Caution</button>
-        <button type="button" class="fb"        data-f="risk"    onclick="setFilter(this)">Risk</button>
-        <button type="button" class="fb"        data-f="danger"  onclick="setFilter(this)">Danger</button>
+        <button type="button" class="fb"        data-f="safe"    onclick="setFilter(this)">Lower</button>
+        <button type="button" class="fb"        data-f="caution" onclick="setFilter(this)">Moderate</button>
+        <button type="button" class="fb"        data-f="risk"    onclick="setFilter(this)">Elevated</button>
+        <button type="button" class="fb"        data-f="danger"  onclick="setFilter(this)">Very elevated</button>
       </div>
     </div>
     <div class="sb-lists">
+      <p id="ai-safety-list-banner" class="ai-safety-list-banner" role="note" hidden></p>
+      <div class="sb-official-row">
+        <button type="button" id="btn-official-sources-list" class="btn-official-sources" hidden>Official sources</button>
+      </div>
       <div id="trail-list"></div>
       <div class="mountain-section" id="mountain-section">
         <div class="mountain-hd">
@@ -72,6 +77,10 @@
     </div>
   </div>
 
+</div>
+
+<div id="mandatory-limit-footer" class="mandatory-limit-footer" role="note" aria-live="polite">
+  For informational use only. Always verify with official sources. Not a substitute for professional judgment.
 </div>
 
 <script src="js/index-boot.js"></script>

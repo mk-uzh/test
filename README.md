@@ -1,6 +1,6 @@
-# 🏔️ TrailSafe — Hiking Risk Intelligence
+# 🏔️ TrailSafe — map & conditions overview
 
-A hiking trail safety dashboard with a topographic map (OpenTopoMap), CSV-driven data, demo ML-style risk predictions, weather, and gear checklists.
+**One more tool to inform your planning** — a topographic map (OpenTopoMap) with **risk estimates based on available environmental data** (demo CSV + heuristics), weather fields, and gear checklists. Not a safety guarantee; always use official sources.
 
 ## 🗺️ Real trails & peaks (OpenStreetMap)
 
@@ -9,7 +9,7 @@ Use **Search** with a place or **mountain name** (Nominatim geocoding — we pre
 - **Named paths / footways** (trail lines) via Overpass  
 - **Named peaks** (`natural=peak`, nodes and ways with a name) in the same area  
 
-Distances in the lists are from your **search point** (or the map view center, depending on context). Peaks appear as ▲ markers; trail segments use the safety colour legend.  
+Distances in the lists are from your **search point** (or the map view center, depending on context). Peaks appear as ▲ markers; trail segments use a status **colour** legend (indicator bands, not a safety verdict).  
 Please use geocoding and Overpass **lightly** (no automated bulk requests).
 
 ---
@@ -46,15 +46,15 @@ trailsafe/
     ├── incidents.csv
     ├── environment.csv
     ├── complexity.csv
-    ├── predictions.csv   ← demo blended score (swap for real model output)
+    ├── predictions.csv   ← risk indicators (demo; swap for your model)
     └── waypoints.csv     ← segments + segment_status for map colours
 ```
 
 ---
 
-## ⚙️ Risk scoring
+## ⚙️ Risk **indicators** (not accurate scores)
 
-- **Primary display:** `predictions.csv` → `blended_risk_0_10` (placeholder until your model is wired in).
+- **Primary display:** `predictions.csv` → `blended_risk_0_10` (placeholder; **Risk indicators based on historical and weather data** when you wire a model).
 - **Comparison:** a rule-based heuristic in `app.js` (`riskScoreHeuristic`) using merged CSV fields.
 
 Weighted heuristic factors (0–10):
@@ -81,5 +81,12 @@ Edit CSVs under `data/`. Join key is `trail_id` (or `id` in `trails.csv`). After
 - **Vanilla JS** — no build step  
 - **Google Fonts** — Outfit + DM Sans  
 - **localStorage** — gear checklist state  
+
+Public copy avoids implied guarantees (e.g. not “**AI-powered safety**”); describe the product as **AI-assisted environmental awareness** and **risk estimates based on available environmental data**.
+
+## Compliance records
+
+- OpenWeather pre-commercial checklist: `docs/compliance/OPENWEATHER_API_COMPLIANCE_CHECKLIST.md`
+- AI system classification + launch state-of-the-art record: `docs/compliance/AI_SYSTEM_CLASSIFICATION_ASSESSMENT.md`
 
 > **Note:** An older **nested** `trailsafe/` copy may remain in the repo from a previous upload. The **canonical** app in this project is the **repository root** (this README, `index.html`, `server/`, `js/`, `data/`).

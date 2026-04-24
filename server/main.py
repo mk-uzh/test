@@ -5,10 +5,15 @@ Run from project: uvicorn server.main:app --host 0.0.0.0 --port 8000
 # Bundle entry: /api/* for auth; static files (index, auth, js, data) are mounted at project ROOT.
 from __future__ import annotations
 
+import json
+import logging
 import os
 import re
 import secrets
 import hashlib
+import urllib.error
+import urllib.parse
+import urllib.request
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -26,6 +31,8 @@ from sqlalchemy.orm import Session, DeclarativeBase, Mapped, mapped_column, rela
 load_dotenv(Path(__file__).parent / ".env")
 
 ROOT = Path(__file__).resolve().parent.parent
+COMPLIANCE_LOG = ROOT / "compliance_acks.log"
+compliance_logger = logging.getLogger("trailsafe.compliance")
 _default_sqlite = (ROOT / "trailsafe.db").resolve()
 DEFAULT_DATABASE_URL = f"sqlite:///{_default_sqlite.as_posix()}"
 DATABASE_URL = os.getenv("DATABASE_URL", DEFAULT_DATABASE_URL)
@@ -34,6 +41,7 @@ JWT_ALG = "HS256"
 COOKIE_NAME = "trailsafe_token"
 DEMO_REVEAL_RESET = os.getenv("DEMO_REVEAL_RESET_TOKEN", "0") == "1"
 TOKEN_DAYS = 7
+OPENWEATHER_API_KEY = os.getenv("OPENWEATHER_API_KEY", "").strip()
 
 pwd_ctx = CryptContext(schemes=["bcrypt"], deprecated="auto")
 if DATABASE_URL.startswith("sqlite"):
@@ -66,6 +74,14 @@ class PasswordResetToken(Base):
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
     token_hash: Mapped[str] = mapped_column(String(64))
     expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    user: Mapped[User] = relationship("User")
+
+
+class OnboardingCompletion(Base):
+    __tablename__ = "onboarding_completions"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), unique=True, index=True)
+    completed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     user: Mapped[User] = relationship("User")
 
 
@@ -158,6 +174,13 @@ class ResetBody(BaseModel):
     token: str = Field(min_length=10)
     new_password: str = Field(min_length=1)
 
+
+class AiFeatureAckBody(BaseModel):
+    """First-time risk-score feature consent (separate from registration)."""
+
+    accepted: bool = True
+    client_at: str | None = None
+
     @field_validator("new_password")
     @classmethod
     def pwd_ok(cls, v: str) -> str:
@@ -165,6 +188,31 @@ class ResetBody(BaseModel):
         if err:
             raise ValueError(err)
         return v
+
+
+class OutdoorExperienceBody(BaseModel):
+    """Self-reported hiking experience captured during first AI-feature onboarding."""
+
+    level: str = Field(min_length=1)
+    client_at: str | None = None
+
+    @field_validator("level")
+    @classmethod
+    def level_ok(cls, v: str) -> str:
+        norm = v.strip().lower()
+        allowed = {"beginner", "intermediate", "advanced", "expert"}
+        if norm not in allowed:
+            raise ValueError("Invalid experience level.")
+        return norm
+
+
+class DeleteMyDataBody(BaseModel):
+    confirm: bool = False
+
+
+class OnboardingCompleteBody(BaseModel):
+    completed: bool = True
+    client_at: str | None = None
 
 
 app = FastAPI(title="TrailSafe API")
@@ -204,7 +252,7 @@ def set_auth_cookie(response: Response, user_id: int) -> None:
 @app.post("/api/auth/register")
 def register(body: RegisterBody, db: Session = Depends(get_db)):
     if not body.terms_accepted:
-        raise HTTPException(400, "You must accept the information notice before registering.")
+        raise HTTPException(400, "You must confirm the registration notice before registering.")
     err = validate_password_strength(body.password)
     if err:
         raise HTTPException(400, err)
@@ -243,7 +291,17 @@ def me(request: Request, db: Session = Depends(get_db)):
     u = db.get(User, uid)
     if not u:
         raise HTTPException(401, "Not authenticated")
-    return {"email": u.email, "id": u.id}
+    onboarding = (
+        db.query(OnboardingCompletion)
+        .filter(OnboardingCompletion.user_id == u.id)
+        .first()
+    )
+    return {
+        "email": u.email,
+        "id": u.id,
+        "onboarding_completed": bool(onboarding),
+        "onboarding_completed_at": onboarding.completed_at.isoformat() if onboarding else None,
+    }
 
 
 @app.post("/api/auth/forgot-password")
@@ -296,6 +354,188 @@ def reset_password(body: ResetBody, db: Session = Depends(get_db)):
 @app.get("/api/health")
 def health():
     return {"status": "ok"}
+
+
+@app.get("/api/weather/live-health")
+def weather_live_health():
+    """
+    Checks if OpenWeather is reachable right now.
+    Returns ok=false when API key is missing, request fails, or API responds with non-200.
+    """
+    if not OPENWEATHER_API_KEY:
+        return {"ok": False, "reason": "missing_api_key"}
+    query = urllib.parse.urlencode(
+        {
+            "lat": "47.3769",  # Zurich probe point
+            "lon": "8.5417",
+            "appid": OPENWEATHER_API_KEY,
+            "units": "metric",
+        }
+    )
+    url = f"https://api.openweathermap.org/data/2.5/weather?{query}"
+    try:
+        req = urllib.request.Request(url, method="GET")
+        with urllib.request.urlopen(req, timeout=5) as res:
+            status = int(getattr(res, "status", 0) or 0)
+            if status != 200:
+                return {"ok": False, "reason": f"http_{status}"}
+            return {"ok": True}
+    except urllib.error.HTTPError as e:
+        return {"ok": False, "reason": f"http_{e.code}"}
+    except (urllib.error.URLError, TimeoutError, OSError):
+        return {"ok": False, "reason": "unreachable"}
+
+
+@app.post("/api/compliance/ai-feature-ack")
+def ai_feature_ack(
+    request: Request,
+    body: AiFeatureAckBody,
+    user: User = Depends(require_user),
+):
+    """Timestamped log line for in-app AI risk-feature acceptance (regulatory / audit)."""
+    if not body.accepted:
+        raise HTTPException(400, "Invalid acknowledgement.")
+    now = datetime.now(timezone.utc)
+    rec = {
+        "event": "ai_risk_feature_disclaimer",
+        "user_id": user.id,
+        "email": user.email,
+        "server_utc": now.isoformat(),
+        "client_at": body.client_at,
+    }
+    line = {
+        **rec,
+        "ip": request.client.host if request and request.client else None,
+    }
+    line_json = json.dumps(line, ensure_ascii=True)
+    compliance_logger.warning("ai_feature_ack %s", line_json)
+    try:
+        with open(COMPLIANCE_LOG, "a", encoding="utf-8") as f:
+            f.write(line_json + "\n")
+    except OSError as e:
+        compliance_logger.error("compliance file write failed: %s", e)
+    return {"ok": True, "server_utc": rec["server_utc"]}
+
+
+@app.post("/api/compliance/outdoor-experience")
+def outdoor_experience_ack(
+    request: Request,
+    body: OutdoorExperienceBody,
+    user: User = Depends(require_user),
+):
+    """Timestamped log line for self-reported outdoor experience level."""
+    now = datetime.now(timezone.utc)
+    rec = {
+        "event": "outdoor_experience_self_report",
+        "user_id": user.id,
+        "email": user.email,
+        "level": body.level,
+        "server_utc": now.isoformat(),
+        "client_at": body.client_at,
+    }
+    line = {
+        **rec,
+        "ip": request.client.host if request and request.client else None,
+    }
+    line_json = json.dumps(line, ensure_ascii=True)
+    compliance_logger.warning("outdoor_experience_ack %s", line_json)
+    try:
+        with open(COMPLIANCE_LOG, "a", encoding="utf-8") as f:
+            f.write(line_json + "\n")
+    except OSError as e:
+        compliance_logger.error("compliance file write failed: %s", e)
+    return {"ok": True, "server_utc": rec["server_utc"]}
+
+
+@app.post("/api/compliance/onboarding-complete")
+def onboarding_complete(
+    request: Request,
+    body: OnboardingCompleteBody,
+    db: Session = Depends(get_db),
+    user: User = Depends(require_user),
+):
+    """Timestamped completion record for mandatory onboarding flow."""
+    if not body.completed:
+        raise HTTPException(400, "Invalid onboarding completion payload.")
+    now = datetime.now(timezone.utc)
+    row = (
+        db.query(OnboardingCompletion)
+        .filter(OnboardingCompletion.user_id == user.id)
+        .first()
+    )
+    if not row:
+        row = OnboardingCompletion(user_id=user.id, completed_at=now)
+        db.add(row)
+    else:
+        row.completed_at = now
+    db.commit()
+
+    rec = {
+        "event": "mandatory_onboarding_completed",
+        "user_id": user.id,
+        "email": user.email,
+        "server_utc": now.isoformat(),
+        "client_at": body.client_at,
+    }
+    line = {
+        **rec,
+        "ip": request.client.host if request and request.client else None,
+    }
+    line_json = json.dumps(line, ensure_ascii=True)
+    compliance_logger.warning("onboarding_complete %s", line_json)
+    try:
+        with open(COMPLIANCE_LOG, "a", encoding="utf-8") as f:
+            f.write(line_json + "\n")
+    except OSError as e:
+        compliance_logger.error("compliance file write failed: %s", e)
+    return {"ok": True, "server_utc": rec["server_utc"]}
+
+
+@app.post("/api/privacy/delete-my-data")
+def delete_my_data(
+    request: Request,
+    body: DeleteMyDataBody,
+    db: Session = Depends(get_db),
+    user: User = Depends(require_user),
+):
+    """Delete account and associated user data."""
+    if not body.confirm:
+        raise HTTPException(400, "Deletion confirmation missing.")
+
+    uid = user.id
+    email = user.email
+
+    # Delete auth reset artifacts and account row.
+    db.query(PasswordResetToken).filter(PasswordResetToken.user_id == uid).delete()
+    db.query(OnboardingCompletion).filter(OnboardingCompletion.user_id == uid).delete()
+    db.query(User).filter(User.id == uid).delete()
+    db.commit()
+
+    # Remove user-linked compliance lines (best effort).
+    try:
+        if COMPLIANCE_LOG.exists():
+            kept: list[str] = []
+            with open(COMPLIANCE_LOG, "r", encoding="utf-8") as f:
+                for line in f:
+                    stripped = line.strip()
+                    if not stripped:
+                        continue
+                    try:
+                        rec = json.loads(stripped)
+                    except json.JSONDecodeError:
+                        kept.append(line)
+                        continue
+                    if rec.get("user_id") == uid or rec.get("email") == email:
+                        continue
+                    kept.append(line)
+            with open(COMPLIANCE_LOG, "w", encoding="utf-8") as f:
+                f.writelines(kept)
+    except OSError as e:
+        compliance_logger.error("compliance file scrub failed: %s", e)
+
+    out = JSONResponse({"ok": True, "deleted_user_id": uid})
+    out.delete_cookie(COOKIE_NAME, path="/")
+    return out
 
 
 # Static files after API routes (trailsafe/ root: index.html, auth.html, css, js, data)
